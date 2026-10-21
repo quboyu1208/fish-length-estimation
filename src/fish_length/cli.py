@@ -1,0 +1,103 @@
+"""Command-line tools. JSON output is strict: invalid values become status fields."""
+import argparse
+import json
+from pathlib import Path
+import sys
+
+from .measurement import measure_endpoints
+
+
+def read_json(path):
+    def reject(value):
+        raise ValueError(f"Non-standard JSON number: {value}")
+    return json.loads(Path(path).read_text(encoding="utf-8"), parse_constant=reject)
+
+
+def write_json(value, output=None):
+    text = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False)
+    if output:
+        path = Path(output)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text + "\n", encoding="utf-8")
+    else:
+        print(text)
+
+
+def measure_document(document, args):
+    width, height = document["width"], document["height"]
+    grid = document["xyz"]
+    if len(grid) != height or any(len(row) != width for row in grid):
+        raise ValueError("XYZ grid must match height x width exactly")
+    detections = document["detections"]
+    measurements = measure_endpoints(
+        [d["keypoints"] for d in detections], lambda x, y: grid[y][x],
+        width, height, unit=document["unit"], endpoint_indices=tuple(args.endpoints),
+        min_confidence=args.keypoint_conf,
+    )
+    return {"schema_version": 1, "measurement": "straight_line_endpoint_distance",
+            "length_unit": "cm", "detections": [
+                {**d, "detection_index": i, "measurement": m.to_dict()}
+                for i, (d, m) in enumerate(zip(detections, measurements))]}
+
+
+def predict_image(args):
+    import cv2
+    from .inference import load_pose_model, predict_detections
+    source = Path(args.image)
+    if not source.is_file():
+        raise ValueError(f"Image not found: {source}")
+    image = cv2.imread(str(source))
+    if image is None:
+        raise ValueError("Cannot decode image")
+    detections = predict_detections(load_pose_model(args.weights), image,
+                                    confidence=args.conf, device=args.device)
+    document = {"schema_version": 1, "width": image.shape[1], "height": image.shape[0],
+                "detections": detections}
+    if args.xyz:
+        xyz = read_json(args.xyz)
+        if (xyz["width"], xyz["height"]) != (document["width"], document["height"]):
+            raise ValueError("XYZ must be aligned to the original image resolution")
+        document.update({"xyz": xyz["xyz"], "unit": xyz["unit"]})
+        document = measure_document(document, args)
+    else:
+        document["measurement_status"] = "not_measured_no_xyz"
+    write_json(document, args.output)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Fish pose and 3D endpoint length estimation")
+    sub = parser.add_subparsers(dest="command", required=True)
+    measure = sub.add_parser("measure", help="Measure keypoints with an aligned XYZ JSON grid")
+    measure.add_argument("input")
+    predict = sub.add_parser("predict", help="Run local pose weights on one image")
+    predict.add_argument("--weights", required=True)
+    predict.add_argument("--image", required=True)
+    predict.add_argument("--xyz", help="Optional aligned XYZ JSON document")
+    zed = sub.add_parser("zed", help="Optional live ZED measurement")
+    zed.add_argument("--weights", required=True)
+    zed.add_argument("--max-frames", type=int, default=300)
+    zed.add_argument("--show", action="store_true")
+    for command in (predict, zed):
+        command.add_argument("--conf", type=float, default=0.25)
+        command.add_argument("--device", default="cpu")
+    for command in (measure, predict, zed):
+        command.add_argument("--endpoints", nargs=2, type=int, default=[0, 1])
+        command.add_argument("--keypoint-conf", type=float, default=0.5)
+        command.add_argument("--output", help="Output JSON (ZED: JSONL), default stdout")
+    args = parser.parse_args(argv)
+    try:
+        if args.command == "measure":
+            write_json(measure_document(read_json(args.input), args), args.output)
+        elif args.command == "predict":
+            predict_image(args)
+        else:
+            from .zed import run
+            run(args)
+    except (ValueError, KeyError, TypeError, OSError, ImportError) as exc:
+        print(f"fish-length: {exc}", file=sys.stderr)
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

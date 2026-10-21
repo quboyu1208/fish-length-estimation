@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fish-length-estimation"
+version = "0.1.0"
+description = "Fish endpoint length estimation from pose keypoints and aligned XYZ measurements"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+dependencies = []
+
+[project.optional-dependencies]
+vision = ["ultralytics==8.2.31", "numpy>=1.23,<2", "opencv-python>=4.6,<4.12"]
+
+[project.scripts]
+fish-length = "fish_length.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
