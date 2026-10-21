@@ -30,3 +30,10 @@ or weights. The camera and real checkpoint paths require validation.
 
 Speed, acceleration and ArcFace identification are intentionally outside this
 release. Existing historical results are not transferred as verified benchmarks.
+
+## v0.2.0: training and validation
+
+Adds local train/val CLI, a documented two-endpoint YOLOv8n Pose baseline, a dataset
+template and annotation/training tutorial. Core tests include mocked training
+dispatch and dry-run behavior. No real training or benchmark is included. The
+public source archive is named fish-length-estimation-0.2.0-source.zip.

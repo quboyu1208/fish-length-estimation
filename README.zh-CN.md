@@ -35,6 +35,21 @@ fish-length predict --weights C:/models/fish-pose.pt --image C:/data/fish.jpg --
 
 数据格式见 [data-format.md](docs/data-format.md)。这里需要 XYZ 三维坐标，不能直接把单通道深度数值当成 XYZ 使用；从深度反投影需要正确的相机内参及坐标约定。
 
+## YOLO 关键点训练与评估
+
+已包含基础 YOLOv8 双关键点模型配置、鱼类数据配置模板，以及 `train` / `val` 命令。网络模块、损失和训练器通过固定版本 Ultralytics 依赖复用，无需复制整个框架。
+
+```powershell
+# 仅预览参数：不需要模型、数据集或 GPU，不会启动训练
+fish-length train --model configs/yolov8n-fish-pose.yaml --data configs/fish-pose.example.yaml --dry-run
+# 将模板复制为 .local/fish-pose.yaml 并填写真实数据路径后训练
+fish-length train --model configs/yolov8n-fish-pose.yaml --data .local/fish-pose.yaml --device 0 --epochs 100 --name fish-baseline --output outputs/train-summary.json
+# 用训练完成后的实际 best.pt 路径验证
+fish-length val --weights outputs/pose/fish-baseline/weights/best.pt --data .local/fish-pose.yaml --device 0 --output outputs/val-summary.json
+```
+
+`--model` 也支持可信的本地 Pose `.pt` 进行微调。标注格式、数据划分、预训练初始化与 test 评估见 [完整训练教程](docs/training.md)。模型 YAML 是新整理的基础双点基线，不是找回的 CGA 改进模型。这里只验证了命令封装和 dry-run，没有实际训练或生成真实性能结果。
+
 ## ZED 实时测量（待实机验证）
 
 自行通过官方渠道安装匹配的 ZED SDK、Python API、GPU 驱动和依赖。项目不包含 SDK wheel。
@@ -68,7 +83,7 @@ fish-length zed --weights C:/models/fish-pose.pt --device 0 --max-frames 300 --s
 python tools/build_public_bundle.py
 ```
 
-生成 `dist/fish-length-estimation-0.1.0-source.zip`。该压缩包仅收录明确列出的公开源码、文档和合成数据，不包含 `.local`、权重、环境或输出。请优先使用它创建公开仓库，避免把原毕业设计目录一起上传。
+生成 `dist/fish-length-estimation-0.2.0-source.zip`。该压缩包仅收录明确列出的公开源码、文档和合成数据，不包含 `.local`、权重、环境或输出。请优先使用它创建公开仓库，避免把原毕业设计目录一起上传。
 
 本地提取时额外复制的参考权重位于 `.local/weights`，被 Git 和发布包排除；其来源记录也只保存在 `.local`。权重未加载、未验证、尚未确认公开授权。
 

@@ -40,6 +40,28 @@ fish-length predict --weights /path/to/fish-pose.pt --image /path/to/fish.jpg --
 
 The vision extra pins Ultralytics 8.2.31 to the version declared by the source workspace. This is a compatibility starting point, not a recovered training environment or a validated inference matrix. No checkpoints or experimental images are distributed in the public package.
 
+## Train and evaluate fish keypoints
+
+Install the `vision` extra, prepare your own authorized YOLO Pose annotations and
+edit the absolute dataset path in a copy of `configs/fish-pose.example.yaml`.
+The supplied `configs/yolov8n-fish-pose.yaml` is a two-endpoint **baseline adapted
+from Ultralytics**, not the missing historical CGA architecture.
+
+```sh
+# Dependency-free command plan only: no dataset scan, model loading or training.
+fish-length train --model configs/yolov8n-fish-pose.yaml --data configs/fish-pose.example.yaml --dry-run
+# Actual training: create and edit .local/fish-pose.yaml first.
+fish-length train --model configs/yolov8n-fish-pose.yaml --data .local/fish-pose.yaml --device 0 --epochs 100 --name fish-baseline --output outputs/train-summary.json
+# Explicit local .pt input can be used instead of model YAML for fine-tuning.
+fish-length val --weights outputs/pose/fish-baseline/weights/best.pt --data .local/fish-pose.yaml --split val --device 0 --output outputs/val-summary.json
+```
+
+See the [training guide](docs/training.md) for label format, endpoint conventions,
+finetuning, test splits and metric interpretation. Defaults use seed=0,
+deterministic=True, workers=0 and AMP disabled. This is not a recovered environment
+or experiment. Wrapper tests use mocked models; actual training has not been run.
+Pose mAP is not centimetre-length accuracy.
+
 ## Optional ZED camera
 
 Install the matching ZED SDK and its Python API from Stereolabs separately. The project does not redistribute SDK wheels. Use a compatible GPU/driver/SDK environment.
@@ -58,7 +80,7 @@ Uses the rectified left image and the SDK's aligned XYZ point cloud in metres. P
 - Pixel coordinates are floored; each endpoint uses a single XYZ sample. Missing depth, non-finite values, nonpositive forward depth and invalid coordinates produce status fields and null lengths.
 - This measures an endpoint chord, not a curved body centreline. Define whether your landmarks represent total, fork or standard length before scientific use.
 - Underwater refraction, occlusion, stereo uncertainty and endpoint depth contamination remain unresolved sources of error. The SDK's depth is not a substitute for validation against physical ground truth.
-- No training dataset, recovered CGA architecture, pretrained fish model, fish accuracy benchmark, speed estimation or individual identification is included.
+- A training/validation CLI and an adapted two-endpoint YOLOv8 Pose model config are included. No training dataset, recovered CGA architecture, pretrained fish model, fish accuracy benchmark, speed estimation or individual identification is included.
 
 ## Development and release
 
@@ -68,7 +90,7 @@ Core tests require only Python. CI covers core functionality; it does not valida
 python tools/build_public_bundle.py
 ```
 
-This creates `dist/fish-length-estimation-0.1.0-source.zip` using an explicit public-file allowlist. Local weights, datasets, caches, outputs and virtual environments are excluded. See [release notes](docs/release.md) before publishing.
+This creates `dist/fish-length-estimation-0.2.0-source.zip` using an explicit public-file allowlist. Local weights, datasets, caches, outputs and virtual environments are excluded. See [release notes](docs/release.md) before publishing.
 
 ## License and provenance
 

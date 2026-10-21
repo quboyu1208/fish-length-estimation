@@ -84,12 +84,34 @@ def main(argv=None):
         command.add_argument("--endpoints", nargs=2, type=int, default=[0, 1])
         command.add_argument("--keypoint-conf", type=float, default=0.5)
         command.add_argument("--output", help="Output JSON (ZED: JSONL), default stdout")
+    train = sub.add_parser("train", help="Train a local YOLO Pose model on a local dataset")
+    train.add_argument("--model", required=True, help="Local pose YAML or trusted .pt checkpoint")
+    train.add_argument("--epochs", type=int, default=100)
+    train.add_argument("--patience", type=int, default=50)
+    train.add_argument("--seed", type=int, default=0)
+    train.add_argument("--amp", action="store_true", help="Enable AMP (may trigger upstream checks/downloads)")
+    val = sub.add_parser("val", help="Evaluate a local pose checkpoint")
+    val.add_argument("--weights", required=True)
+    val.add_argument("--split", choices=["val", "test"], default="val")
+    for command in (train, val):
+        command.add_argument("--data", required=True, help="Local dataset YAML")
+        command.add_argument("--imgsz", type=int, default=640)
+        command.add_argument("--batch", type=int, default=8)
+        command.add_argument("--workers", type=int, default=0)
+        command.add_argument("--device", default="cpu")
+        command.add_argument("--project", default="outputs/pose")
+        command.add_argument("--name", default="train" if command is train else "val")
+        command.add_argument("--dry-run", action="store_true", help="Print plan without loading ML dependencies")
+        command.add_argument("--output", help="Optional JSON plan or metric-summary file")
     args = parser.parse_args(argv)
     try:
         if args.command == "measure":
             write_json(measure_document(read_json(args.input), args), args.output)
         elif args.command == "predict":
             predict_image(args)
+        elif args.command in ("train", "val"):
+            from .training import run
+            run(args)
         else:
             from .zed import run
             run(args)

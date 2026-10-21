@@ -33,3 +33,10 @@ be advertised as a recovered YOLO-Fishpose improvement.
 
 Synthetic geometry tests establish arithmetic and validity handling only. They do
 not establish underwater measurement accuracy or camera/model compatibility.
+
+## Included training baseline (v0.2.0)
+
+A two-endpoint YOLOv8n Pose architecture YAML, dataset template, train and val
+commands are now included. These are an adapted baseline and wrapper around
+Ultralytics, not recovered historical experiment configs. No actual training
+or checkpoint compatibility check was performed for this addition. See training.md.

@@ -25,3 +25,12 @@ The included JSON example is synthetic and contains no experimental observations
 Before distributing any additional model or dataset, record its source, authors,
 license/permission, landmark meanings and integrity hash separately. This license
 file does not establish ownership or redistribution rights for external assets.
+
+## Adapted model configuration (v0.2.0)
+
+`configs/yolov8n-fish-pose.yaml` is copied and adapted from the source workspace's
+`ultralytics/cfg/models/v8/yolov8-pose.yaml` (Ultralytics 8.2.31, AGPL-3.0).
+Changes: kpt_shape [17,3] to [2,3], explicit scale n, and an explanatory provenance
+comment. The upstream license header is retained. This is a baseline configuration,
+not a recovered CGA architecture or an independently invented YOLO backbone.
+Training and validation use Ultralytics modules/losses via the optional dependency.

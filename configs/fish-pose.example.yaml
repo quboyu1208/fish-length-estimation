@@ -1,0 +1,14 @@
+# Example only: NOT the missing historical coco8-fishpose.yaml / fish-pose.yaml.
+# Replace path with the absolute local dataset directory before training.
+path: /absolute/path/to/fish-pose
+train: images/train
+val: images/val
+# Add test: images/test only after creating an independent test split.
+
+# Baseline convention: two endpoint landmarks with x, y, visibility.
+kpt_shape: [2, 3]
+# Anatomical endpoint identities remain unchanged by horizontal image flipping.
+flip_idx: [0, 1]
+# Example class mapping; adapt to the actual annotations.
+names:
+  0: fish

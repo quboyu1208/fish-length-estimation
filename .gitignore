@@ -16,3 +16,9 @@ outputs/
 .env
 .idea/
 .vscode/
+
+# Research data and training artifacts
+datasets/
+runs/
+wandb/
+*.cache

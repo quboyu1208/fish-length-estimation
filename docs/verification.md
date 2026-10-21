@@ -24,3 +24,14 @@ Not performed:
 - Running GitHub Actions remotely; the included workflow has only been authored.
 
 Core tests validate geometry and result association, not scientific accuracy.
+
+## v0.2.0 training/validation addition (2026-10-21)
+
+- 14 unittest tests passed against source and the installed v0.2.0 wheel in the
+  separate virtual environment. Training/validation tests use mocked model calls.
+- Both YAML configs parsed successfully; model and dataset specify kpt_shape [2,3].
+- CLI train dry-run succeeded without vision dependencies or model loading.
+- v0.2.0 wheel built and installed successfully.
+- Updated source ZIP has 26 allowlisted files; no checkpoints or research media.
+- No actual training, fish checkpoint loading, dataset validation run, camera test
+  or real model construction was performed. No research metrics were produced.
