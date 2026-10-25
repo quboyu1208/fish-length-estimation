@@ -12,6 +12,9 @@ PUBLIC_FILES = [
     "src/fish_length/cli.py", "src/fish_length/zed.py",
     "configs/fish-pose.example.yaml", "configs/yolov8n-fish-pose.yaml",
     "docs/training.md", "src/fish_length/training.py", "tests/test_training.py",
+    "CHANGELOG.md", "docs/dataset-checks.md", "docs/length-evaluation.md",
+    "src/fish_length/dataset.py", "src/fish_length/evaluation.py",
+    "tests/test_dataset.py", "tests/test_evaluation.py", "examples/length-evaluation.synthetic.json",
     "tests/test_measurement.py", "tests/test_cli.py", "tools/build_public_bundle.py",
 ]
 
@@ -20,7 +23,7 @@ def build():
     for name in PUBLIC_FILES:
         if not (ROOT / name).is_file():
             raise FileNotFoundError(name)
-    output = ROOT / "dist/fish-length-estimation-0.2.0-source.zip"
+    output = ROOT / "dist/fish-length-estimation-0.3.0-source.zip"
     output.parent.mkdir(exist_ok=True)
     with ZipFile(output, "w", compression=ZIP_DEFLATED) as archive:
         for name in PUBLIC_FILES:

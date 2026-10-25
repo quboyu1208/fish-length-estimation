@@ -1,0 +1,8 @@
+{
+  "description": "Synthetic arithmetic example only; not experimental fish measurements.",
+  "samples": [
+    {"sample_id": "synthetic-a", "true_length_cm": 10, "predicted_length_cm": 11, "group": "near"},
+    {"sample_id": "synthetic-b", "true_length_cm": 20, "predicted_length_cm": 18, "group": "far"},
+    {"sample_id": "synthetic-c", "true_length_cm": 30, "predicted_length_cm": null, "group": "far"}
+  ]
+}

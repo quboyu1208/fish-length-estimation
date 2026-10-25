@@ -103,10 +103,31 @@ def main(argv=None):
         command.add_argument("--name", default="train" if command is train else "val")
         command.add_argument("--dry-run", action="store_true", help="Print plan without loading ML dependencies")
         command.add_argument("--output", help="Optional JSON plan or metric-summary file")
+    check = sub.add_parser("check-dataset", help="Read-only checks of YOLO Pose directory splits")
+    check.add_argument("root", help="Dataset root containing images/ and labels/")
+    check.add_argument("--classes", type=int, default=1)
+    check.add_argument("--keypoints", type=int, default=2)
+    check.add_argument("--dimensions", type=int, choices=[2, 3], default=3)
+    check.add_argument("--splits", nargs="+", choices=["train", "val", "test"], default=["train", "val"])
+    check.add_argument("--check-duplicates", action="store_true", help="Hash images for exact cross-split duplicates")
+    check.add_argument("--output", help="Optional JSON report")
+    evaluate = sub.add_parser("evaluate-lengths", help="Compare matched physical lengths in centimetres")
+    evaluate.add_argument("input", help="JSON object with samples list")
+    evaluate.add_argument("--output", help="Optional JSON metric report")
     args = parser.parse_args(argv)
     try:
         if args.command == "measure":
             write_json(measure_document(read_json(args.input), args), args.output)
+        elif args.command == "check-dataset":
+            from .dataset import check_dataset
+            report = check_dataset(args.root, classes=args.classes, keypoints=args.keypoints,
+                                   dimensions=args.dimensions, splits=args.splits,
+                                   check_duplicates=args.check_duplicates)
+            write_json(report, args.output)
+            return 0 if report["ok"] else 1
+        elif args.command == "evaluate-lengths":
+            from .evaluation import evaluate_lengths
+            write_json(evaluate_lengths(read_json(args.input)), args.output)
         elif args.command == "predict":
             predict_image(args)
         elif args.command in ("train", "val"):

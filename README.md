@@ -62,6 +62,26 @@ deterministic=True, workers=0 and AMP disabled. This is not a recovered environm
 or experiment. Wrapper tests use mocked models; actual training has not been run.
 Pose mAP is not centimetre-length accuracy.
 
+## Check data and evaluate physical lengths
+
+Both tools run with the dependency-free core:
+
+```sh
+# Read-only label/structure checks; set counts to match your own data config.
+fish-length check-dataset /path/to/fish-pose --classes 1 --keypoints 2 --dimensions 3 --check-duplicates --output outputs/data-check.json
+# Synthetic arithmetic example, not a measured fish benchmark.
+fish-length evaluate-lengths examples/length-evaluation.synthetic.json
+# Explicitly matched real observations supplied by you, in centimetres.
+fish-length evaluate-lengths /path/to/matched-lengths.json --output outputs/length-metrics.json
+```
+
+The [dataset checker](docs/dataset-checks.md) reports file and line errors and
+optional byte-identical images across splits; it cannot identify related video
+frames or decode images. The [length evaluator](docs/length-evaluation.md) reports
+MAE, RMSE, signed bias, median absolute error, MAPE and valid-measurement rate,
+overall and per group. Failed predictions must remain as null rows so coverage is
+visible. These tools validate supplied inputs; they do not establish real accuracy.
+
 ## Optional ZED camera
 
 Install the matching ZED SDK and its Python API from Stereolabs separately. The project does not redistribute SDK wheels. Use a compatible GPU/driver/SDK environment.
@@ -90,7 +110,7 @@ Core tests require only Python. CI covers core functionality; it does not valida
 python tools/build_public_bundle.py
 ```
 
-This creates `dist/fish-length-estimation-0.2.0-source.zip` using an explicit public-file allowlist. Local weights, datasets, caches, outputs and virtual environments are excluded. See [release notes](docs/release.md) before publishing.
+This creates `dist/fish-length-estimation-0.3.0-source.zip` using an explicit public-file allowlist. Local weights, datasets, caches, outputs and virtual environments are excluded. See [release notes](docs/release.md) before publishing.
 
 ## License and provenance
 

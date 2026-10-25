@@ -50,6 +50,20 @@ fish-length val --weights outputs/pose/fish-baseline/weights/best.pt --data .loc
 
 `--model` 也支持可信的本地 Pose `.pt` 进行微调。标注格式、数据划分、预训练初始化与 test 评估见 [完整训练教程](docs/training.md)。模型 YAML 是新整理的基础双点基线，不是找回的 CGA 改进模型。这里只验证了命令封装和 dry-run，没有实际训练或生成真实性能结果。
 
+## 训练前检查与体长误差评估
+
+两个命令均无需模型、GPU 或额外依赖：
+
+```powershell
+fish-length check-dataset E:/datasets/fish-pose --classes 1 --keypoints 2 --dimensions 3 --check-duplicates --output outputs/data-check.json
+fish-length evaluate-lengths examples/length-evaluation.synthetic.json
+fish-length evaluate-lengths C:/data/matched-lengths.json --output outputs/length-metrics.json
+```
+
+- [数据检查](docs/dataset-checks.md)：只读检查图像/标签配对、标注格式、类别、归一化坐标、可见性，按文件/行号报告；可选检查跨集合字节完全相同的图片。
+- [体长评估](docs/length-evaluation.md)：对用户明确配对的预测与真实体长计算 MAE、RMSE、偏差、绝对误差中位数、MAPE 及有效测量率，支持分组。
+- 预测失败必须保留为 null，避免只保留成功样本后误导精度判断。内置评估样例全部是合成数字，不是研究结果。
+
 ## ZED 实时测量（待实机验证）
 
 自行通过官方渠道安装匹配的 ZED SDK、Python API、GPU 驱动和依赖。项目不包含 SDK wheel。
@@ -83,7 +97,7 @@ fish-length zed --weights C:/models/fish-pose.pt --device 0 --max-frames 300 --s
 python tools/build_public_bundle.py
 ```
 
-生成 `dist/fish-length-estimation-0.2.0-source.zip`。该压缩包仅收录明确列出的公开源码、文档和合成数据，不包含 `.local`、权重、环境或输出。请优先使用它创建公开仓库，避免把原毕业设计目录一起上传。
+生成 `dist/fish-length-estimation-0.3.0-source.zip`。该压缩包仅收录明确列出的公开源码、文档和合成数据，不包含 `.local`、权重、环境或输出。请优先使用它创建公开仓库，避免把原毕业设计目录一起上传。
 
 本地提取时额外复制的参考权重位于 `.local/weights`，被 Git 和发布包排除；其来源记录也只保存在 `.local`。权重未加载、未验证、尚未确认公开授权。
 

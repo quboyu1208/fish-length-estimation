@@ -126,3 +126,13 @@ fish-length zed --weights outputs/pose/fish-baseline/weights/best.pt --device 0 
 ## 当前验证边界
 
 命令分发、dry-run 不加载模型、参数校验和指标汇总通过模拟模型测试；模拟数值不代表任何真实实验结果。本次未实际训练、未运行真实验证集，也未证明基础模型和历史 checkpoint 的推理兼容性。下一步需要在有授权的数据上完成环境和真实训练检查。
+
+## 训练前与测量后的检查
+
+训练前建议运行只读标注检查：
+
+```powershell
+fish-length check-dataset E:/datasets/fish-pose --classes 1 --keypoints 2 --dimensions 3 --check-duplicates --output outputs/data-check.json
+```
+
+完成物理真值配对后，可运行 `fish-length evaluate-lengths` 报告厘米误差与有效率。详见 [数据检查](dataset-checks.md) 和 [体长误差评估](length-evaluation.md)。它们不取代 YOLO val，也不会自动恢复原数据集或测量真值。

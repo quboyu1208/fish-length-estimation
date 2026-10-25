@@ -37,3 +37,10 @@ Adds local train/val CLI, a documented two-endpoint YOLOv8n Pose baseline, a dat
 template and annotation/training tutorial. Core tests include mocked training
 dispatch and dry-run behavior. No real training or benchmark is included. The
 public source archive is named fish-length-estimation-0.2.0-source.zip.
+
+## v0.3.0: data checks and physical-length evaluation
+
+Adds dependency-free read-only annotation checks and exact cross-split hashing,
+plus explicit-pair physical-length errors and valid-measurement coverage. Examples
+are synthetic. No new experimental results, data or checkpoints are distributed.
+See CHANGELOG.md and the two command guides.

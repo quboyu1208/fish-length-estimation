@@ -35,3 +35,17 @@ Core tests validate geometry and result association, not scientific accuracy.
 - Updated source ZIP has 26 allowlisted files; no checkpoints or research media.
 - No actual training, fish checkpoint loading, dataset validation run, camera test
   or real model construction was performed. No research metrics were produced.
+
+## v0.3.0 data checks and physical evaluation (2026-10-25)
+
+- 29 unittest tests passed against source and against the installed v0.3.0 wheel
+  in a separate Windows/Python 3.10.5 virtual environment.
+- Dataset fixtures use synthetic bytes and labels; tests check error diagnostics,
+  empty-label backgrounds, exact cross-split duplicates and read-only behavior.
+- Physical-length metrics were checked against known synthetic errors, missing
+  predictions, grouped coverage and invalid input values.
+- Installed CLI ran the synthetic length-evaluation example successfully.
+- v0.3.0 wheel built/installed successfully; source ZIP has 34 allowlisted files
+  and no research images, videos, model weights or local environment files.
+- No actual fish dataset, checkpoint, camera, training or scientific accuracy
+  benchmark was used for this addition.
